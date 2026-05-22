@@ -15,11 +15,11 @@ export function TrustedBy() {
           Our users passed ATS filters at
         </p>
       </div>
-      <div className="relative flex overflow-hidden">
+      <div className="relative flex overflow-hidden w-full">
         <motion.div
           animate={{ x: ["0%", "-50%"] }}
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          className="flex gap-12 items-center whitespace-nowrap"
+          className="flex gap-8 sm:gap-12 items-center whitespace-nowrap"
         >
           {[...companies, ...companies].map((company, i) => (
             <span

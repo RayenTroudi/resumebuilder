@@ -36,16 +36,16 @@ export default function PricingPage() {
               Simple, transparent pricing
             </Badge>
             <h1 className="font-display text-5xl font-bold tracking-tight mb-4">
-              Two plans.
+              Three plans.
               <br /><span className="gradient-text">Zero confusion.</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-              Start free. Upgrade to Pro for $8/month when you're ready to unlock full ATS power.
+              Start free. Try Weekly for $1.9, or unlock full ATS power with Pro at $5.9/month.
             </p>
           </motion.div>
 
           {/* Pricing cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20 max-w-6xl mx-auto">
             {pricingPlans.map((plan, i) => (
               <motion.div
                 key={plan.id}
@@ -65,9 +65,6 @@ export default function PricingPage() {
                     </Badge>
                   </div>
                 )}
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${plan.color} mb-5 flex items-center justify-center shadow-lg`}>
-                  <span className="text-white font-bold">{plan.name[0]}</span>
-                </div>
                 <h2 className="font-display text-2xl font-bold mb-1">{plan.name}</h2>
                 <p className="text-sm text-muted-foreground mb-5">{plan.description}</p>
                 <div className="mb-6">
@@ -75,7 +72,11 @@ export default function PricingPage() {
                     <span className="text-5xl font-display font-bold">
                       {plan.price === 0 ? "Free" : `$${plan.price}`}
                     </span>
-                    {plan.price > 0 && <span className="text-muted-foreground mb-2">/month</span>}
+                    {plan.price > 0 && (
+                      <span className="text-muted-foreground mb-2">
+                        /{plan.billingPeriod === "week" ? "week" : "month"}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <ul className="space-y-3 mb-8 flex-1">
@@ -100,9 +101,6 @@ export default function PricingPage() {
                 >
                   <Link href="/signup">{plan.cta}</Link>
                 </Button>
-                {plan.popular && (
-                  <p className="text-center text-xs text-muted-foreground mt-3">No credit card required</p>
-                )}
               </motion.div>
             ))}
           </div>

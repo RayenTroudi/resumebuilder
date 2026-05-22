@@ -390,7 +390,7 @@ export default function DashboardPage() {
                   asChild
                 >
                   <Link href="/pricing">
-                    Upgrade to Pro — $8/mo
+                    Upgrade to Pro — $5.9/mo
                     <ArrowRight className="w-3 h-3 ml-1.5" />
                   </Link>
                 </Button>

@@ -11,7 +11,7 @@ import {
   TemplateSidebar,
   TemplateMinimal,
 } from "@/features/resume/resume-templates";
-import { RESUME_EXAMPLES, SECTORS } from "@/features/resume/resume-examples-data";
+import { RESUME_EXAMPLES, RESUME_SLUG_MAP, SECTORS } from "@/features/resume/resume-examples-data";
 
 /* visible sector filters – a curated subset for the landing page */
 const LANDING_SECTORS = [
@@ -31,89 +31,95 @@ const LANDING_SECTORS = [
   "Social Services",
 ];
 
+function idToSlug(id: string): string {
+  return Object.entries(RESUME_SLUG_MAP).find(([, v]) => v === id)?.[0] ?? id;
+}
+
 function ResumeCard({ example, index }: { example: typeof RESUME_EXAMPLES[0]; index: number }) {
   const [hovered, setHovered] = useState(false);
   const atsColor =
     example.atsScore >= 95 ? "#10b981" : example.atsScore >= 90 ? "#3b82f6" : "#f59e0b";
+  const slug = idToSlug(example.id);
+  const href = `/resume-examples/${slug}`;
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96 }}
-      transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
-      className="group relative flex-shrink-0 w-[200px] cursor-pointer"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* paper card */}
-      <div className="relative rounded-xl overflow-hidden border border-border/30 shadow-md group-hover:shadow-2xl transition-all duration-300 bg-white group-hover:-translate-y-1.5">
-        {/* scaled resume */}
-        <div className="relative bg-white overflow-hidden" style={{ paddingBottom: "141%" }}>
-          <div className="absolute inset-0">
-            <div
-              style={{
-                width: "640px",
-                height: "904px",
-                transform: "scale(0.3125)",
-                transformOrigin: "top left",
-              }}
-            >
-              {example.template === "classic" && (
-                <TemplateClassic data={example.data} accent={example.accent} />
-              )}
-              {example.template === "sidebar" && (
-                <TemplateSidebar data={example.data} accent={example.accent} />
-              )}
-              {example.template === "minimal" && (
-                <TemplateMinimal data={example.data} accent={example.accent} />
-              )}
+    <Link href={href}>
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
+        className="group relative flex-shrink-0 w-[200px] cursor-pointer"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        {/* paper card */}
+        <div className="relative rounded-xl overflow-hidden border border-border/30 shadow-md group-hover:shadow-2xl transition-all duration-300 bg-white group-hover:-translate-y-1.5">
+          {/* scaled resume */}
+          <div className="relative bg-white overflow-hidden" style={{ paddingBottom: "141%" }}>
+            <div className="absolute inset-0">
+              <div
+                style={{
+                  width: "640px",
+                  height: "904px",
+                  transform: "scale(0.3125)",
+                  transformOrigin: "top left",
+                }}
+              >
+                {example.template === "classic" && (
+                  <TemplateClassic data={example.data} accent={example.accent} />
+                )}
+                {example.template === "sidebar" && (
+                  <TemplateSidebar data={example.data} accent={example.accent} />
+                )}
+                {example.template === "minimal" && (
+                  <TemplateMinimal data={example.data} accent={example.accent} />
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* hover overlay */}
-        <AnimatePresence>
-          {hovered && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="absolute inset-0 flex flex-col items-center justify-end pb-4 gap-2"
-              style={{ background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 50%)" }}
-            >
-              <Link href="/dashboard/resume/examples">
+          {/* hover overlay */}
+          <AnimatePresence>
+            {hovered && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="absolute inset-0 flex flex-col items-center justify-end pb-4 gap-2"
+                style={{ background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 50%)" }}
+              >
                 <button
                   className="px-4 py-1.5 rounded-full text-xs font-semibold text-white shadow-lg"
                   style={{ background: example.accent }}
                 >
                   Use Template
                 </button>
-              </Link>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        {/* ATS badge – top right */}
-        <div
-          className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white shadow-sm"
-          style={{ background: atsColor }}
-        >
-          <CheckCircle className="w-2.5 h-2.5" />
-          {example.atsScore}%
+          {/* ATS badge – top right */}
+          <div
+            className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white shadow-sm"
+            style={{ background: atsColor }}
+          >
+            <CheckCircle className="w-2.5 h-2.5" />
+            {example.atsScore}%
+          </div>
         </div>
-      </div>
 
-      {/* label */}
-      <div className="mt-2.5 px-0.5">
-        <p className="text-sm font-semibold text-foreground truncate leading-snug">
-          {example.role}
-        </p>
-        <p className="text-xs text-muted-foreground">{example.sector}</p>
-      </div>
-    </motion.div>
+        {/* label */}
+        <div className="mt-2.5 px-0.5">
+          <p className="text-sm font-semibold text-foreground truncate leading-snug">
+            {example.role}
+          </p>
+          <p className="text-xs text-muted-foreground">{example.sector}</p>
+        </div>
+      </motion.div>
+    </Link>
   );
 }
 
@@ -164,7 +170,7 @@ export function ResumeShowcase() {
           initial={{ opacity: 0, y: 16 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.15 }}
-          className="flex items-center gap-2 mb-8 overflow-x-auto scrollbar-hide pb-1"
+          className="flex items-center gap-2 mb-8 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0"
         >
           {LANDING_SECTORS.map((sector) => (
             <button
@@ -185,19 +191,19 @@ export function ResumeShowcase() {
         {/* ── scroll gallery ── */}
         <div className="relative">
           {/* left fade + arrow */}
-          <div className="absolute left-0 top-0 bottom-8 w-16 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-8 w-8 sm:w-16 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
           <button
             onClick={() => scroll("left")}
-            className="absolute left-1 top-[38%] -translate-y-1/2 z-20 w-9 h-9 rounded-full border border-border/70 bg-card/90 backdrop-blur-sm shadow-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card transition-all"
+            className="absolute left-0 sm:left-1 top-[38%] -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-border/70 bg-card/90 backdrop-blur-sm shadow-md hidden sm:flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card transition-all"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
 
           {/* right fade + arrow */}
-          <div className="absolute right-0 top-0 bottom-8 w-16 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-8 w-8 sm:w-16 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
           <button
             onClick={() => scroll("right")}
-            className="absolute right-1 top-[38%] -translate-y-1/2 z-20 w-9 h-9 rounded-full border border-border/70 bg-card/90 backdrop-blur-sm shadow-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card transition-all"
+            className="absolute right-0 sm:right-1 top-[38%] -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-border/70 bg-card/90 backdrop-blur-sm shadow-md hidden sm:flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card transition-all"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -205,7 +211,7 @@ export function ResumeShowcase() {
           {/* cards row */}
           <div
             ref={scrollRef}
-            className="flex gap-5 overflow-x-auto scrollbar-hide px-2 py-4"
+            className="flex gap-5 overflow-x-auto scrollbar-hide px-4 sm:px-2 py-4"
             style={{ scrollSnapType: "x mandatory" }}
           >
             <AnimatePresence mode="popLayout">
@@ -223,7 +229,7 @@ export function ResumeShowcase() {
               animate={{ opacity: 1 }}
               className="flex-shrink-0 w-[200px] flex flex-col"
             >
-              <Link href="/dashboard/resume/examples" className="flex-1">
+              <Link href="/resume-examples" className="flex-1">
                 <div
                   className="rounded-xl border-2 border-dashed border-border/60 hover:border-primary/40 transition-colors cursor-pointer flex flex-col items-center justify-center gap-3 text-center h-full"
                   style={{ paddingBottom: "141%", position: "relative" }}
@@ -250,7 +256,7 @@ export function ResumeShowcase() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.35 }}
-          className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-6"
+          className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left"
         >
           {/* stat pills */}
           <div className="flex flex-wrap items-center gap-4 justify-center sm:justify-start">
@@ -267,7 +273,7 @@ export function ResumeShowcase() {
           </div>
 
           {/* CTA */}
-          <Link href="/dashboard/resume/examples">
+          <Link href="/resume-examples">
             <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
               Browse All Examples
               <ArrowRight className="w-4 h-4" />

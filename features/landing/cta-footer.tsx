@@ -27,7 +27,7 @@ export function CTAFooter() {
             Free plan — no credit card needed
           </div>
 
-          <h2 className="font-display text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6">
+          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
             Stop getting filtered
             <br />
             <span className="gradient-text">by a robot.</span>
@@ -37,10 +37,10 @@ export function CTAFooter() {
             Join 12,400+ job seekers who used CareerForge AI to build ATS-optimized resumes and land the interviews they deserved.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 w-full sm:w-auto px-4 sm:px-0">
             <Button
               size="lg"
-              className="h-14 px-10 text-base bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0 shadow-2xl shadow-indigo-500/30 group"
+              className="h-14 px-10 text-base bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0 shadow-2xl shadow-indigo-500/30 group w-full sm:w-auto"
               asChild
             >
               <Link href="/signup">
@@ -48,13 +48,13 @@ export function CTAFooter() {
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
-            <Button size="lg" variant="ghost" asChild>
+            <Button size="lg" variant="ghost" className="w-full sm:w-auto" asChild>
               <Link href="/pricing">View Pricing</Link>
             </Button>
           </div>
 
           <p className="text-sm text-muted-foreground mt-6">
-            Free forever · Pro at $8/month · Cancel anytime
+            Free forever · Weekly at $1.9/wk · Pro at $5.9/month · Cancel anytime
           </p>
         </motion.div>
       </div>

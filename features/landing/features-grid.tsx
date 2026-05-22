@@ -68,7 +68,7 @@ export function FeaturesGrid() {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-fr">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
@@ -78,7 +78,7 @@ export function FeaturesGrid() {
               transition={{ duration: 0.5, delay: index * 0.07 }}
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
               className={`group relative p-6 rounded-2xl border border-border/50 bg-card hover:border-border transition-all duration-300 hover:shadow-lg ${
-                feature.highlight ? "sm:col-span-2 lg:col-span-2" : ""
+                feature.highlight ? "lg:col-span-2" : ""
               }`}
             >
               <div

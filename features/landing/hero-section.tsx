@@ -37,13 +37,13 @@ export function HeroSection() {
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center w-full">
         {/* Headline */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] mb-6"
+          className="font-display text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] mb-6"
         >
           ATS resumes that
           <br />
@@ -65,11 +65,11 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12"
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12 w-full px-2 sm:px-0"
         >
           <Button
             size="lg"
-            className="h-12 px-8 text-base bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0 shadow-xl shadow-indigo-500/25 group"
+            className="h-12 px-8 text-base bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0 shadow-xl shadow-indigo-500/25 group w-full sm:w-auto"
             asChild
           >
             <Link href="/signup">
@@ -77,7 +77,7 @@ export function HeroSection() {
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </Button>
-          <Button size="lg" variant="outline" className="h-12 px-8 text-base" asChild>
+          <Button size="lg" variant="outline" className="h-12 px-8 text-base w-full sm:w-auto" asChild>
             <Link href="#features">See How It Works</Link>
           </Button>
         </motion.div>
@@ -87,7 +87,7 @@ export function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-muted-foreground mb-16"
+          className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 text-sm text-muted-foreground mb-16 px-2"
         >
           {[
             "No credit card required",
@@ -106,7 +106,7 @@ export function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-muted-foreground mb-20"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-muted-foreground mb-12 sm:mb-20"
         >
           <div className="flex items-center gap-1.5">
             <div className="flex -space-x-2">
@@ -145,7 +145,7 @@ export function HeroSection() {
             <motion.div
               animate={{ y: [-6, 6, -6] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -right-4 top-24 bg-card border border-indigo-500/30 rounded-xl px-3 py-2 shadow-xl hidden sm:flex items-center gap-2"
+              className="absolute -right-2 sm:-right-4 top-24 bg-card border border-indigo-500/30 rounded-xl px-3 py-2 shadow-xl hidden sm:flex items-center gap-2"
             >
               <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                 <Zap className="w-3 h-3 text-white" />
@@ -159,7 +159,7 @@ export function HeroSection() {
             <motion.div
               animate={{ y: [6, -6, 6] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute -left-4 bottom-8 bg-card border border-emerald-500/30 rounded-xl px-3 py-2 shadow-xl hidden sm:flex items-center gap-2"
+              className="absolute -left-2 sm:-left-4 bottom-8 bg-card border border-emerald-500/30 rounded-xl px-3 py-2 shadow-xl hidden sm:flex items-center gap-2"
             >
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <p className="text-xs font-medium text-emerald-400">ATS: Passing ✓</p>

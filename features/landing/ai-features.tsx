@@ -99,13 +99,13 @@ export function AIFeaturesSection() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20"
         >
-          <div className="flex items-start gap-4">
+          <div className="flex flex-col xs:flex-row items-start gap-4">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <div className="flex-1">
               <p className="text-xs text-indigo-400 font-medium mb-2 uppercase tracking-widest">AI Bullet Rewrite — Live Example</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-muted-foreground mb-2 font-medium">Before (ATS score: 42%):</p>
                   <p className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-3 border border-border/50">

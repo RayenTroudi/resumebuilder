@@ -118,6 +118,7 @@ export interface PricingPlan {
   name: string;
   price: number;
   yearlyPrice: number;
+  billingPeriod?: "week" | "month";
   description: string;
   features: string[];
   notIncluded?: string[];

@@ -22,11 +22,11 @@ export function PricingPreview() {
             Simple, transparent <span className="gradient-text">pricing.</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Start free. Upgrade to Pro for $8/month when you're ready to land interviews.
+            Start free. Try Weekly for $1.9, or go Pro for $5.9/month when you're ready to land interviews.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto pt-4">
           {pricingPlans.map((plan, index) => (
             <motion.div
               key={plan.id}
@@ -34,7 +34,7 @@ export function PricingPreview() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className={`relative rounded-2xl p-6 border flex flex-col ${
+              className={`relative rounded-2xl p-5 sm:p-6 border flex flex-col ${
                 plan.popular
                   ? "border-indigo-500/50 bg-gradient-to-b from-indigo-500/10 to-card shadow-xl shadow-indigo-500/10"
                   : "border-border bg-card"
@@ -48,10 +48,6 @@ export function PricingPreview() {
                 </div>
               )}
 
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${plan.color} mb-4 flex items-center justify-center shadow-lg`}>
-                <span className="text-white font-bold text-sm">{plan.name[0]}</span>
-              </div>
-
               <h3 className="font-display font-bold text-xl mb-1">{plan.name}</h3>
               <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
 
@@ -60,7 +56,9 @@ export function PricingPreview() {
                   {plan.price === 0 ? "Free" : `$${plan.price}`}
                 </span>
                 {plan.price > 0 && (
-                  <span className="text-muted-foreground text-sm">/month</span>
+                  <span className="text-muted-foreground text-sm">
+                    /{plan.billingPeriod === "week" ? "week" : "month"}
+                  </span>
                 )}
               </div>
 
@@ -90,9 +88,6 @@ export function PricingPreview() {
               >
                 <Link href="/signup">{plan.cta}</Link>
               </Button>
-              {plan.popular && (
-                <p className="text-center text-xs text-muted-foreground mt-3">No credit card required</p>
-              )}
             </motion.div>
           ))}
         </div>

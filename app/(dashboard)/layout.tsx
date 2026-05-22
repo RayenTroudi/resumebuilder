@@ -13,7 +13,7 @@ export default function DashboardLayout({
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen overflow-hidden bg-background" suppressHydrationWarning>
       {/* Mobile sidebar overlay */}
       <AnimatePresence>
         {mobileSidebarOpen && (

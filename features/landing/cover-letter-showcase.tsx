@@ -45,7 +45,7 @@ function CoverLetterCard({ template, index }: { template: CoverLetterTemplate; i
                     acc[rowIdx].push(word);
                     return acc;
                   }, []).map((_, ri) => (
-                    <div key={ri} className="h-[3px] rounded-full bg-gray-300" style={{ width: `${65 + Math.random() * 30}%` }} />
+                    <div key={ri} className="h-[3px] rounded-full bg-gray-300" style={{ width: `${65 + ((index * 137 + i * 31 + ri * 17) % 30)}%` }} />
                   ))}
                 </div>
               ))}

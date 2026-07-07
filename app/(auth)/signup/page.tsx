@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Zap, ArrowRight, Code2, Globe, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,18 +13,42 @@ import { Separator } from "@/components/ui/separator";
 
 const perks = [
   "Free resume builder & templates",
-"5 AI generations per month",
+  "5 AI generations per month",
   "No credit card required",
 ];
 
 export default function SignupPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    setTimeout(() => { window.location.href = "/dashboard"; }, 1200);
+
+    const form = new FormData(e.currentTarget);
+    const firstName = form.get("firstName") as string;
+    const lastName = form.get("lastName") as string;
+    const email = form.get("email") as string;
+    const password = form.get("password") as string;
+
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: `${firstName} ${lastName}`.trim(), email, password }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.error ?? "Something went wrong");
+      setLoading(false);
+      return;
+    }
+
+    await signIn("credentials", { email, password, redirect: false });
+    router.push("/dashboard");
   };
 
   return (
@@ -90,24 +116,27 @@ export default function SignupPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <p className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">{error}</p>
+            )}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>First name</Label>
-                <Input placeholder="Alex" required />
+                <Input name="firstName" placeholder="Alex" required />
               </div>
               <div className="space-y-2">
                 <Label>Last name</Label>
-                <Input placeholder="Rivera" required />
+                <Input name="lastName" placeholder="Rivera" required />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Email</Label>
-              <Input type="email" placeholder="alex@example.com" required />
+              <Input name="email" type="email" placeholder="alex@example.com" required />
             </div>
             <div className="space-y-2">
               <Label>Password</Label>
               <div className="relative">
-                <Input type={showPassword ? "text" : "password"} placeholder="••••••••" required minLength={8} />
+                <Input name="password" type={showPassword ? "text" : "password"} placeholder="••••••••" required minLength={8} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>

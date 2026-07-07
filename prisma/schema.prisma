@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Auth ───────────────────────────────────────────────────────────────────
+
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String    @unique
+  emailVerified  DateTime?
+  passwordHash   String?
+  image          String?
+  role           Role      @default(USER)
+  plan           Plan      @default(FREE)
+  aiCreditsUsed  Int       @default(0)
+  aiCreditsTotal Int       @default(10)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  resumes       Resume[]
+  coverLetters  CoverLetter[]
+  jobs          Job[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─── Resumes ────────────────────────────────────────────────────────────────
+
+model Resume {
+  id           String          @id @default(cuid())
+  userId       String
+  title        String
+  template     String          @default("stockholm")
+  accentColor  String          @default("#2563eb")
+  score        Int             @default(0)
+  atsScore     Int             @default(0)
+  views        Int             @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sections ResumeSection[]
+
+  @@map("resumes")
+}
+
+model ResumeSection {
+  id       String              @id @default(cuid())
+  resumeId String
+  type     ResumeSectionType
+  title    String
+  order    Int
+
+  resume Resume              @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  items  ResumeSectionItem[]
+
+  @@map("resume_sections")
+}
+
+model ResumeSectionItem {
+  id          String   @id @default(cuid())
+  sectionId   String
+  title       String
+  subtitle    String?
+  date        String?
+  endDate     String?
+  description String?  @db.Text
+  bullets     String[]
+  skills      String[]
+  url         String?
+  location    String?
+  order       Int      @default(0)
+
+  section ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@map("resume_section_items")
+}
+
+// ─── Cover Letters ──────────────────────────────────────────────────────────
+
+model CoverLetter {
+  id          String            @id @default(cuid())
+  userId      String
+  jobTitle    String
+  company     String
+  tone        CoverLetterTone   @default(PROFESSIONAL)
+  content     String            @db.Text
+  jobId       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job?  @relation(fields: [jobId], references: [id], onDelete: SetNull)
+
+  @@map("cover_letters")
+}
+
+// ─── Jobs (job descriptions saved for ATS matching) ─────────────────────────
+
+model Job {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  company     String
+  description String   @db.Text
+  url         String?
+  createdAt   DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coverLetters CoverLetter[]
+
+  @@map("jobs")
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Plan {
+  FREE
+  WEEKLY
+  PRO
+}
+
+enum ResumeSectionType {
+  summary
+  experience
+  education
+  skills
+  projects
+  certifications
+}
+
+enum CoverLetterTone {
+  PROFESSIONAL
+  CONVERSATIONAL
+  ENTHUSIASTIC
+  FORMAL
+}

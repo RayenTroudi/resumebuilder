@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Zap, ArrowRight, Code2, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,15 +12,29 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    setTimeout(() => {
-      window.location.href = "/dashboard";
-    }, 1200);
+
+    const form = new FormData(e.currentTarget);
+    const result = await signIn("credentials", {
+      email: form.get("email"),
+      password: form.get("password"),
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError("Invalid email or password");
+      setLoading(false);
+    } else {
+      router.push("/dashboard");
+    }
   };
 
   return (
@@ -60,9 +76,12 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <p className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">{error}</p>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="alex@example.com" defaultValue="alex@example.com" required />
+              <Input id="email" name="email" type="email" placeholder="alex@example.com" required />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -74,9 +93,9 @@ export default function LoginPage() {
               <div className="relative">
                 <Input
                   id="password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
-                  defaultValue="password"
                   required
                 />
                 <button

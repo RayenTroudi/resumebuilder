@@ -3,4 +3,6 @@
 node_modules
 npm-debug.log*
 .env
+.env.*
 *.md
+lib/generated/prisma

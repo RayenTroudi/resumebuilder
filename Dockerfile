@@ -25,27 +25,26 @@ RUN npx prisma generate
 RUN npm run build
 
 # ---- Runner (production image deployed to Railway) ----
+# Uses a conventional `next start`-compatible layout (full node_modules,
+# full .next build output) rather than the trimmed `output: standalone`
+# bundle, because Railway's configured Start Command runs `npm run start`
+# directly and would override/bypass a standalone server.js entrypoint.
 FROM base AS runner
 ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs \
  && adduser --system --uid 1001 nextjs
 
-# Full node_modules is kept (not the trimmed standalone subset) so the
-# Prisma CLI is available at boot to run `prisma migrate deploy`.
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+COPY --from=builder /app/next.config.ts ./next.config.ts
 COPY --from=builder /app/package.json ./package.json
 
-# Standalone server output + static assets (Next.js traces its own deps,
-# but we already have a full node_modules above so its subset is skipped).
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone/.next ./.next
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone/server.js ./server.js
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-
 COPY docker-entrypoint.sh ./
-RUN chmod +x docker-entrypoint.sh && chown nextjs:nodejs docker-entrypoint.sh
+RUN chmod +x docker-entrypoint.sh \
+ && chown -R nextjs:nodejs .next docker-entrypoint.sh
 
 USER nextjs
 
@@ -54,4 +53,4 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
-CMD ["node", "server.js"]
+CMD ["npm", "run", "start"]

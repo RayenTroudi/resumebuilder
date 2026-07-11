@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
-  FileText,
   Files,
   Target,
   Settings,
@@ -28,7 +27,6 @@ import { Badge } from "@/components/ui/badge";
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard",       href: "/dashboard",                  badge: undefined, group: "main" },
   { icon: Files,           label: "My Resumes",      href: "/dashboard/resumes",           badge: undefined, group: "main" },
-  { icon: FileText,        label: "Resume Builder",  href: "/dashboard/resume",            badge: undefined, group: "main" },
   { icon: BookOpen,        label: "Resume Examples", href: "/dashboard/resume/examples",   badge: undefined, group: "main" },
   { icon: MessageSquare,   label: "Cover Letter",    href: "/dashboard/cover-letter",      badge: undefined, group: "tools" },
   { icon: Target,          label: "Interview Prep",  href: "/dashboard/interview",         badge: undefined, group: "tools" },

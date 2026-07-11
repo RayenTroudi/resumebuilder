@@ -80,6 +80,13 @@ model Resume {
   title        String
   template     String          @default("stockholm")
   accentColor  String          @default("#2563eb")
+  // Personal / contact header shown on the resume itself
+  fullName     String?
+  headline     String?
+  email        String?
+  phone        String?
+  location     String?
+  website      String?
   score        Int             @default(0)
   atsScore     Int             @default(0)
   views        Int             @default(0)
@@ -89,6 +96,7 @@ model Resume {
   user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   sections ResumeSection[]
 
+  @@index([userId])
   @@map("resumes")
 }
 
@@ -102,6 +110,7 @@ model ResumeSection {
   resume Resume              @relation(fields: [resumeId], references: [id], onDelete: Cascade)
   items  ResumeSectionItem[]
 
+  @@index([resumeId])
   @@map("resume_sections")
 }
 
@@ -121,6 +130,7 @@ model ResumeSectionItem {
 
   section ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 
+  @@index([sectionId])
   @@map("resume_section_items")
 }
 

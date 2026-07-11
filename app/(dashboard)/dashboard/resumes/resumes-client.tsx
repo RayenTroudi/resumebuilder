@@ -31,7 +31,7 @@ export function ResumesClient({ resumes }: { resumes: ResumeListItem[] }) {
     setError("");
     startCreate(async () => {
       const res = await createResume();
-      if (res.ok) router.push("/dashboard/resume");
+      if (res.ok) router.push(`/dashboard/resume/${res.data.id}`);
       else setError(res.error);
     });
   };
@@ -170,7 +170,7 @@ export function ResumesClient({ resumes }: { resumes: ResumeListItem[] }) {
                   </button>
                 </div>
               ) : (
-                <Link href="/dashboard/resume">
+                <Link href={`/dashboard/resume/${resume.id}`}>
                   <h3 className="font-semibold text-sm truncate hover:text-primary transition-colors">
                     {resume.title}
                   </h3>
@@ -201,7 +201,7 @@ export function ResumesClient({ resumes }: { resumes: ResumeListItem[] }) {
                 variant="outline"
                 className="w-full mt-4 h-8 text-xs gap-1.5 border-border/70"
               >
-                <Link href="/dashboard/resume">Open editor</Link>
+                <Link href={`/dashboard/resume/${resume.id}`}>Open editor</Link>
               </Button>
             </motion.div>
           ))}

@@ -116,7 +116,7 @@ export function DashboardNavbar({ title, onMenuClick }: DashboardNavbarProps) {
           className="h-8 text-xs bg-gradient-to-r from-indigo-500 to-violet-600 text-white border-0 shadow-sm shadow-indigo-500/20 hidden sm:flex gap-1.5 hover:opacity-90 transition-opacity"
           asChild
         >
-          <Link href="/dashboard/resume">
+          <Link href="/dashboard/resumes">
             <Plus className="w-3.5 h-3.5" />
             <span className="hidden md:inline">New Resume</span>
             <span className="md:hidden">New</span>

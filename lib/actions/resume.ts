@@ -136,6 +136,8 @@ export type ResumeInput = {
   phone?: string;
   location?: string;
   website?: string;
+  score?: number;
+  atsScore?: number;
   sections: ResumeSectionInput[];
 };
 
@@ -150,6 +152,30 @@ const strList = (v: unknown, maxItems: number, maxLen: number) =>
         .slice(0, maxItems)
         .map((x) => x.slice(0, maxLen))
     : [];
+const clampScore = (v: unknown) =>
+  typeof v === "number" && Number.isFinite(v) ? Math.max(0, Math.min(100, Math.round(v))) : 0;
+
+/** Sanitized Prisma create payload for a section's items. */
+function itemsCreate(items: ResumeItemInput[]) {
+  return (Array.isArray(items) ? items : []).slice(0, 50).map((it, ii) => ({
+    title: str(it.title, 160),
+    subtitle: str(it.subtitle, 160) || null,
+    date: str(it.date, 40) || null,
+    endDate: str(it.endDate, 40) || null,
+    description: str(it.description, 2000) || null,
+    url: str(it.url, 200) || null,
+    location: str(it.location, 120) || null,
+    bullets: strList(it.bullets, 20, 500),
+    skills: strList(it.skills, 60, 60),
+    order: ii,
+  }));
+}
+
+function sanitizeSections(input: ResumeInput) {
+  return (Array.isArray(input.sections) ? input.sections : [])
+    .filter((s) => SECTION_TYPES.includes(s.type as SectionType))
+    .slice(0, 20);
+}
 
 /**
  * Persist an entire resume (header fields + sections + items) in one
@@ -170,9 +196,7 @@ export async function updateResume(
     if (!owned) return { ok: false, error: "Resume not found" };
 
     const title = str(input.title, 120) || "Untitled Resume";
-    const sections = (Array.isArray(input.sections) ? input.sections : [])
-      .filter((s) => SECTION_TYPES.includes(s.type as SectionType))
-      .slice(0, 20);
+    const sections = sanitizeSections(input);
 
     await db.$transaction(async (tx) => {
       await tx.resume.update({
@@ -195,27 +219,13 @@ export async function updateResume(
 
       for (let si = 0; si < sections.length; si++) {
         const s = sections[si];
-        const items = (Array.isArray(s.items) ? s.items : []).slice(0, 50);
         await tx.resumeSection.create({
           data: {
             resumeId: id,
             type: s.type as SectionType,
             title: str(s.title, 80) || s.type,
             order: si,
-            items: {
-              create: items.map((it, ii) => ({
-                title: str(it.title, 160),
-                subtitle: str(it.subtitle, 160) || null,
-                date: str(it.date, 40) || null,
-                endDate: str(it.endDate, 40) || null,
-                description: str(it.description, 2000) || null,
-                url: str(it.url, 200) || null,
-                location: str(it.location, 120) || null,
-                bullets: strList(it.bullets, 20, 500),
-                skills: strList(it.skills, 60, 60),
-                order: ii,
-              })),
-            },
+            items: { create: itemsCreate(s.items) },
           },
         });
       }
@@ -228,6 +238,49 @@ export async function updateResume(
   } catch (err) {
     console.error("[updateResume]", err);
     return { ok: false, error: "Could not save resume" };
+  }
+}
+
+/** Create a fully-populated resume in one shot (used by "Use this template"). */
+export async function createResumeFromInput(
+  input: ResumeInput
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    const userId = await requireUserId();
+    const sections = sanitizeSections(input);
+
+    const resume = await db.resume.create({
+      data: {
+        userId,
+        title: str(input.title, 120) || "Untitled Resume",
+        template: str(input.template, 40) || "stockholm",
+        accentColor: str(input.accentColor, 9) || "#2563eb",
+        fullName: str(input.fullName, 120) || null,
+        headline: str(input.headline, 160) || null,
+        email: str(input.email, 160) || null,
+        phone: str(input.phone, 40) || null,
+        location: str(input.location, 120) || null,
+        website: str(input.website, 200) || null,
+        score: clampScore(input.score),
+        atsScore: clampScore(input.atsScore),
+        sections: {
+          create: sections.map((s, si) => ({
+            type: s.type as SectionType,
+            title: str(s.title, 80) || s.type,
+            order: si,
+            items: { create: itemsCreate(s.items) },
+          })),
+        },
+      },
+      select: { id: true },
+    });
+
+    revalidatePath("/dashboard/resumes");
+    revalidatePath("/dashboard");
+    return { ok: true, data: { id: resume.id } };
+  } catch (err) {
+    console.error("[createResumeFromInput]", err);
+    return { ok: false, error: "Could not create resume from template" };
   }
 }
 

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Search, X, ArrowLeft, Download, Edit3, CheckCircle,
-  ChevronLeft, ChevronRight, Star, Sparkles, LayoutTemplate,
-  Filter,
+  ChevronLeft, ChevronRight, Sparkles, LayoutTemplate, Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -20,15 +20,84 @@ import {
   SECTORS,
   type ResumeExample,
 } from "@/features/resume/resume-examples-data";
+import { createResumeFromInput, type ResumeInput } from "@/lib/actions/resume";
+
+/* Map an example's display data into a persistable resume payload. */
+const TEMPLATE_MAP: Record<ResumeExample["template"], string> = {
+  classic: "stockholm",
+  sidebar: "vienna",
+  minimal: "new-york",
+};
+
+function splitPeriod(period: string): { date: string; endDate: string } {
+  const parts = (period || "").split(/\s*[–—-]\s*/);
+  return { date: (parts[0] || "").trim(), endDate: (parts[1] || "").trim() };
+}
+
+function exampleToResumeInput(ex: ResumeExample): ResumeInput {
+  const d = ex.data;
+  const sections: ResumeInput["sections"] = [];
+
+  if (d.summary)
+    sections.push({ type: "summary", title: "Professional Summary", items: [{ title: "", description: d.summary }] });
+
+  if (d.experience?.length)
+    sections.push({
+      type: "experience", title: "Experience",
+      items: d.experience.map((e) => ({
+        title: e.role, subtitle: e.company, ...splitPeriod(e.period),
+        location: e.location, bullets: e.bullets,
+      })),
+    });
+
+  if (d.education?.length)
+    sections.push({
+      type: "education", title: "Education",
+      items: d.education.map((e) => ({
+        title: e.degree, subtitle: e.school, ...splitPeriod(e.period), description: e.note ?? "",
+      })),
+    });
+
+  if (d.skills?.length)
+    sections.push({
+      type: "skills", title: "Skills",
+      items: d.skills.map((s) => ({ title: s.category, skills: s.items })),
+    });
+
+  if (d.certifications?.length)
+    sections.push({
+      type: "certifications", title: "Certifications",
+      items: d.certifications.map((c) => ({ title: c })),
+    });
+
+  return {
+    title: `${ex.role} Resume`,
+    template: TEMPLATE_MAP[ex.template],
+    accentColor: ex.accent,
+    fullName: d.name,
+    headline: d.title,
+    email: d.email,
+    phone: d.phone,
+    location: d.location,
+    website: d.website ?? d.linkedin ?? "",
+    score: ex.atsScore,
+    atsScore: ex.atsScore,
+    sections,
+  };
+}
 
 /* ─────────────────── mini thumbnail renderer ─────────────────── */
 
 function ResumeThumbnail({
   example,
   onClick,
+  onUse,
+  creating,
 }: {
   example: ResumeExample;
   onClick: () => void;
+  onUse: () => void;
+  creating: boolean;
 }) {
   const atsColor =
     example.atsScore >= 95
@@ -70,15 +139,25 @@ function ResumeThumbnail({
         </div>
 
         {/* hover overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/8 transition-colors duration-300 rounded-lg flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100">
+        <div className={cn(
+          "absolute inset-0 bg-black/0 group-hover:bg-black/8 transition-colors duration-300 rounded-lg flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100",
+          creating && "opacity-100 bg-black/8"
+        )}>
           <div className="flex gap-2">
             <button
-              className="px-4 py-2 rounded-full text-xs font-semibold text-white shadow-lg"
+              disabled={creating}
+              onClick={(e) => { e.stopPropagation(); onUse(); }}
+              className="px-4 py-2 rounded-full text-xs font-semibold text-white shadow-lg disabled:opacity-80 flex items-center"
               style={{ background: example.accent }}
             >
-              <Edit3 className="w-3 h-3 inline mr-1.5" />Use Template
+              {creating
+                ? <><Loader2 className="w-3 h-3 inline mr-1.5 animate-spin" />Creating…</>
+                : <><Edit3 className="w-3 h-3 inline mr-1.5" />Use Template</>}
             </button>
-            <button className="px-4 py-2 rounded-full text-xs font-semibold bg-white text-gray-900 shadow-lg">
+            <button
+              onClick={(e) => { e.stopPropagation(); onClick(); }}
+              className="px-4 py-2 rounded-full text-xs font-semibold bg-white text-gray-900 shadow-lg"
+            >
               <Search className="w-3 h-3 inline mr-1.5" />Preview
             </button>
           </div>
@@ -116,6 +195,8 @@ function PreviewModal({
   onNext,
   hasPrev,
   hasNext,
+  onUse,
+  creating,
 }: {
   example: ResumeExample;
   onClose: () => void;
@@ -123,6 +204,8 @@ function PreviewModal({
   onNext: () => void;
   hasPrev: boolean;
   hasNext: boolean;
+  onUse: () => void;
+  creating: boolean;
 }) {
   const atsColor =
     example.atsScore >= 95
@@ -202,10 +285,14 @@ function PreviewModal({
             {/* actions */}
             <div className="flex gap-3">
               <Button
+                onClick={onUse}
+                disabled={creating}
                 className="gap-2 text-white border-0 shadow-lg"
                 style={{ background: example.accent }}
               >
-                <Edit3 className="w-4 h-4" /> Use This Template
+                {creating
+                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating…</>
+                  : <><Edit3 className="w-4 h-4" /> Use This Template</>}
               </Button>
               <Button variant="outline" className="gap-2 bg-white/10 border-white/20 text-white hover:bg-white/20">
                 <Download className="w-4 h-4" /> Download PDF
@@ -233,10 +320,27 @@ function PreviewModal({
 /* ─────────────────── main page ─────────────────── */
 
 export default function ResumeExamplesPage() {
+  const router = useRouter();
   const [activeSector, setActiveSector] = useState("All");
   const [search, setSearch] = useState("");
   const [previewIdx, setPreviewIdx] = useState<number | null>(null);
-  const [showFilter, setShowFilter] = useState(false);
+  const [creatingId, setCreatingId] = useState<string | null>(null);
+  const [useError, setUseError] = useState("");
+  const [, startUse] = useTransition();
+
+  const handleUse = (example: ResumeExample) => {
+    if (creatingId) return;
+    setUseError("");
+    setCreatingId(example.id);
+    startUse(async () => {
+      const res = await createResumeFromInput(exampleToResumeInput(example));
+      if (res.ok) router.push(`/dashboard/resume/${res.data.id}`);
+      else {
+        setUseError(res.error);
+        setCreatingId(null);
+      }
+    });
+  };
 
   const filtered = RESUME_EXAMPLES.filter(ex => {
     const matchSector = activeSector === "All" || ex.sector === activeSector;
@@ -359,6 +463,8 @@ export default function ResumeExamplesPage() {
                   key={example.id}
                   example={example}
                   onClick={() => openPreview(i)}
+                  onUse={() => handleUse(example)}
+                  creating={creatingId === example.id}
                 />
               ))}
             </AnimatePresence>
@@ -375,7 +481,15 @@ export default function ResumeExamplesPage() {
           onNext={() => setPreviewIdx(i => (i !== null && i < filtered.length - 1 ? i + 1 : i))}
           hasPrev={previewIdx > 0}
           hasNext={previewIdx < filtered.length - 1}
+          onUse={() => handleUse(previewExample)}
+          creating={creatingId === previewExample.id}
         />
+      )}
+
+      {useError && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] text-sm text-white bg-destructive px-4 py-2 rounded-lg shadow-xl">
+          {useError}
+        </div>
       )}
     </div>
   );

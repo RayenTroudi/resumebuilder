@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { mockUser, mockResumes } from "@/data/mock";
+import { mockResumes } from "@/data/mock";
+import { useSessionUser } from "@/components/providers/session-user-provider";
 import { getScoreColor, formatDate } from "@/lib/utils";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip,
@@ -122,11 +123,15 @@ const CustomTooltip = ({
 };
 
 export default function DashboardPage() {
+  const user = useSessionUser();
   const atsScore = 91;
   const keywordsMatched = 34;
   const keywordsTotal = 38;
   const keywordsPercent = Math.round((keywordsMatched / keywordsTotal) * 100);
-  const firstName = mockUser.name.split(" ")[0];
+  const firstName =
+    (user.name?.trim().split(" ")[0]) || user.email.split("@")[0];
+  const isPaid = user.plan !== "FREE";
+  const planLabel = user.plan.charAt(0) + user.plan.slice(1).toLowerCase();
 
   // Computed client-side only to avoid SSR/client time-zone mismatch
   const [greeting, setGreeting] = useState("Good morning");
@@ -387,10 +392,10 @@ export default function DashboardPage() {
                 <h2 className="font-display font-semibold text-sm">Your Plan</h2>
               </div>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-wide">
-                {mockUser.plan === "pro" ? "Pro" : "Free"}
+                {planLabel}
               </span>
             </div>
-            {mockUser.plan !== "pro" ? (
+            {!isPaid ? (
               <>
                 <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
                   Upgrade to Pro for full ATS scoring, AI tailoring, and unlimited resumes.

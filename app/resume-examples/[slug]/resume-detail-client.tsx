@@ -250,7 +250,7 @@ function BottomCTA({ role }: { role: string }) {
         </p>
         <Link href="/signup">
           <Button size="lg" className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0 shadow-xl shadow-indigo-500/20 gap-2">
-            Create my resume — it's free
+            Create my resume — it&apos;s free
             <ArrowRight className="w-4 h-4" />
           </Button>
         </Link>

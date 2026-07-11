@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   FileText,
+  Files,
   Target,
   Settings,
   CreditCard,
@@ -20,13 +21,14 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mockUser } from "@/data/mock";
+import { useSessionUser } from "@/components/providers/session-user-provider";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard",       href: "/dashboard",                  badge: undefined, group: "main" },
-  { icon: FileText,        label: "Resume Builder",  href: "/dashboard/resume",            badge: "3",       group: "main" },
+  { icon: Files,           label: "My Resumes",      href: "/dashboard/resumes",           badge: undefined, group: "main" },
+  { icon: FileText,        label: "Resume Builder",  href: "/dashboard/resume",            badge: undefined, group: "main" },
   { icon: BookOpen,        label: "Resume Examples", href: "/dashboard/resume/examples",   badge: undefined, group: "main" },
   { icon: MessageSquare,   label: "Cover Letter",    href: "/dashboard/cover-letter",      badge: undefined, group: "tools" },
   { icon: Target,          label: "Interview Prep",  href: "/dashboard/interview",         badge: undefined, group: "tools" },
@@ -50,8 +52,11 @@ interface SidebarProps {
 export function Sidebar({ onClose }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
-  const isAdmin = mockUser.role === "admin";
-  const creditPercent = (mockUser.aiCreditsUsed / mockUser.aiCreditsTotal) * 100;
+  const user = useSessionUser();
+  const isAdmin = user.role === "ADMIN";
+  const creditsTotal = user.aiCreditsTotal || 1;
+  const creditPercent = Math.min(100, (user.aiCreditsUsed / creditsTotal) * 100);
+  const creditsRemaining = Math.max(0, user.aiCreditsTotal - user.aiCreditsUsed);
   const isMobile = !!onClose;
 
   return (
@@ -186,7 +191,7 @@ export function Sidebar({ onClose }: SidebarProps) {
                 <span className="text-xs font-semibold text-foreground/80">AI Credits</span>
               </div>
               <span className="text-[11px] text-muted-foreground tabular-nums">
-                {mockUser.aiCreditsUsed}/{mockUser.aiCreditsTotal}
+                {user.aiCreditsUsed}/{user.aiCreditsTotal}
               </span>
             </div>
             <div className="h-1.5 bg-muted/60 rounded-full overflow-hidden">
@@ -198,7 +203,7 @@ export function Sidebar({ onClose }: SidebarProps) {
               />
             </div>
             <p className="text-[11px] text-muted-foreground mt-1.5">
-              {mockUser.aiCreditsTotal - mockUser.aiCreditsUsed} credits remaining
+              {creditsRemaining} credits remaining
             </p>
           </motion.div>
         )}

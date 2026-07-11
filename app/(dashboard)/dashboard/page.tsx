@@ -98,12 +98,21 @@ const fade = (delay = 0) => ({
   transition: { duration: 0.38, delay } as Transition,
 });
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+type TooltipEntry = { name?: string; value?: number | string; color?: string };
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: TooltipEntry[];
+  label?: string;
+}) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-card border border-border/70 rounded-xl px-3 py-2 shadow-xl text-xs">
       <p className="text-muted-foreground mb-1 font-medium">{label}</p>
-      {payload.map((p: any) => (
+      {payload.map((p) => (
         <p key={p.name} className="font-semibold" style={{ color: p.color }}>
           {p.name}: {p.value}%
         </p>
@@ -125,8 +134,11 @@ export default function DashboardPage() {
   useEffect(() => {
     const now = new Date();
     const hour = now.getHours();
+    // Client-only values computed post-mount to avoid SSR hydration mismatch.
+    /* eslint-disable react-hooks/set-state-in-effect */
     setGreeting(hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening");
     setDateLabel(now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }));
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   return (

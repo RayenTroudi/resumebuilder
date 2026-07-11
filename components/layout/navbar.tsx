@@ -185,6 +185,8 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // Client-only mount guard to avoid theme/SSR hydration mismatch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);

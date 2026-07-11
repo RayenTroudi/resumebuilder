@@ -109,13 +109,13 @@ export function AIFeaturesSection() {
                 <div>
                   <p className="text-xs text-muted-foreground mb-2 font-medium">Before (ATS score: 42%):</p>
                   <p className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-3 border border-border/50">
-                    "Worked on the backend and fixed some performance issues"
+                    &quot;Worked on the backend and fixed some performance issues&quot;
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-emerald-400 mb-2 font-medium">After AI tailoring (ATS score: 91%):</p>
                   <p className="text-sm bg-emerald-500/10 text-foreground rounded-lg p-3 border border-emerald-500/20">
-                    "Optimized REST API endpoints using Node.js and Redis caching, reducing p95 latency by 35% and resolving 12 critical production bottlenecks"
+                    &quot;Optimized REST API endpoints using Node.js and Redis caching, reducing p95 latency by 35% and resolving 12 critical production bottlenecks&quot;
                   </p>
                 </div>
               </div>

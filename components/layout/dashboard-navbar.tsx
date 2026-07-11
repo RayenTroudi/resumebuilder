@@ -7,11 +7,13 @@ import {
   Info, AlertTriangle, Sparkles, Menu, X,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { mockUser, mockNotifications } from "@/data/mock";
+import { mockNotifications } from "@/data/mock";
+import { useSessionUser } from "@/components/providers/session-user-provider";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -43,12 +45,24 @@ interface DashboardNavbarProps {
 
 export function DashboardNavbar({ title, onMenuClick }: DashboardNavbarProps) {
   const { theme, setTheme } = useTheme();
+  const user = useSessionUser();
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const unreadCount = mockNotifications.filter((n) => !n.read).length;
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+
+  const displayName = user.name?.trim() || user.email.split("@")[0];
+  const initials =
+    displayName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "U";
+  const planLabel = user.plan.charAt(0) + user.plan.slice(1).toLowerCase();
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -214,14 +228,14 @@ export function DashboardNavbar({ title, onMenuClick }: DashboardNavbarProps) {
             className="flex items-center gap-2 hover:bg-accent/60 rounded-lg px-2 py-1.5 transition-colors"
           >
             <Avatar className="w-7 h-7 ring-2 ring-border">
-              <AvatarImage src={mockUser.avatar} alt={mockUser.name} />
+              <AvatarImage src={user.image ?? undefined} alt={displayName} />
               <AvatarFallback className="text-[11px] font-bold bg-gradient-to-br from-indigo-500 to-violet-600 text-white">
-                {mockUser.name.split(" ").map((n) => n[0]).join("")}
+                {initials}
               </AvatarFallback>
             </Avatar>
             <div className="hidden md:block text-left">
-              <p className="text-xs font-semibold leading-none text-foreground/90">{mockUser.name}</p>
-              <p className="text-[11px] text-muted-foreground capitalize mt-0.5">{mockUser.plan} plan</p>
+              <p className="text-xs font-semibold leading-none text-foreground/90">{displayName}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{planLabel} plan</p>
             </div>
           </button>
 
@@ -236,10 +250,10 @@ export function DashboardNavbar({ title, onMenuClick }: DashboardNavbarProps) {
                   className="absolute right-0 top-11 w-56 bg-white dark:bg-zinc-900 border border-border/70 rounded-xl shadow-2xl shadow-black/20 overflow-hidden z-50"
                 >
                   <div className="px-4 py-3 border-b border-border/50 bg-gradient-to-br from-indigo-500/5 to-violet-500/5">
-                    <p className="text-sm font-semibold text-foreground">{mockUser.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{mockUser.email}</p>
+                    <p className="text-sm font-semibold text-foreground">{displayName}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{user.email}</p>
                     <span className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-wide">
-                      {mockUser.plan} plan
+                      {planLabel} plan
                     </span>
                   </div>
                   <div className="p-1.5">
@@ -258,8 +272,15 @@ export function DashboardNavbar({ title, onMenuClick }: DashboardNavbarProps) {
                       </Link>
                     ))}
                     <div className="border-t border-border/50 mt-1 pt-1">
-                      <button className="w-full text-left px-3 py-2 text-sm text-destructive hover:bg-destructive/8 rounded-lg transition-colors">
-                        Sign out
+                      <button
+                        onClick={() => {
+                          setSigningOut(true);
+                          void signOut({ callbackUrl: "/login" });
+                        }}
+                        disabled={signingOut}
+                        className="w-full text-left px-3 py-2 text-sm text-destructive hover:bg-destructive/8 rounded-lg transition-colors disabled:opacity-60"
+                      >
+                        {signingOut ? "Signing out…" : "Sign out"}
                       </button>
                     </div>
                   </div>

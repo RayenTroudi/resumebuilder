@@ -36,9 +36,9 @@ export default function NotFound() {
           404
         </motion.div>
 
-        <h1 className="font-display text-2xl font-bold mb-3">This page doesn't exist.</h1>
+        <h1 className="font-display text-2xl font-bold mb-3">This page doesn&apos;t exist.</h1>
         <p className="text-muted-foreground mb-8">
-          Looks like you wandered off the resume. Let's get you back on track.
+          Looks like you wandered off the resume. Let&apos;s get you back on track.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">

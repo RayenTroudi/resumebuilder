@@ -22,7 +22,7 @@ export function PricingPreview() {
             Simple, transparent <span className="gradient-text">pricing.</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Start free. Try Weekly for $1.9, or go Pro for $5.9/month when you're ready to land interviews.
+            Start free. Try Weekly for $1.9, or go Pro for $5.9/month when you&apos;re ready to land interviews.
           </p>
         </motion.div>
 

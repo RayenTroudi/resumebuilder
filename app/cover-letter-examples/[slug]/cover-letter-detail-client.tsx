@@ -263,7 +263,7 @@ function BottomCTA({ name }: { name: string }) {
             size="lg"
             className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0 shadow-xl shadow-indigo-500/20 gap-2"
           >
-            Create my cover letter — it's free
+            Create my cover letter — it&apos;s free
             <ArrowRight className="w-4 h-4" />
           </Button>
         </Link>

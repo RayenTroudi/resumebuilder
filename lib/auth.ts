@@ -19,19 +19,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        const email =
+          typeof credentials?.email === "string"
+            ? credentials.email.trim().toLowerCase()
+            : "";
+        const password =
+          typeof credentials?.password === "string" ? credentials.password : "";
 
-        const user = await db.user.findUnique({
-          where: { email: credentials.email as string },
-        });
+        if (!email || !password) return null;
 
+        const user = await db.user.findUnique({ where: { email } });
         if (!user?.passwordHash) return null;
 
-        const valid = await bcrypt.compare(
-          credentials.password as string,
-          user.passwordHash
-        );
-
+        const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
 
         return {
@@ -48,17 +48,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = (user as any).role;
-        token.plan = (user as any).plan;
+        token.id = user.id as string;
+        token.role = user.role;
+        token.plan = user.plan;
       }
       return token;
     },
     session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        (session.user as any).role = token.role;
-        (session.user as any).plan = token.plan;
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.plan = token.plan;
       }
       return session;
     },

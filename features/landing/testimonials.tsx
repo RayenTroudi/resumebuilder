@@ -44,7 +44,7 @@ export function Testimonials() {
                 ))}
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                "{t.content}"
+                &quot;{t.content}&quot;
               </p>
               <div className="flex items-center gap-3">
                 <img

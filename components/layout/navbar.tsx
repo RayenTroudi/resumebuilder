@@ -5,7 +5,9 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Moon, Sun, Menu, X, Zap, ChevronDown, GraduationCap, Landmark, Wrench, ShoppingBag, Star, Users, BookOpen, Calculator, LayoutGrid, FileText, Palette, Minimize2, Briefcase, Layers, Cpu, HeartPulse, Scale, TrendingUp, Mail, Sparkles, Crown } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 const resumeExamplesItems = [
@@ -182,6 +184,16 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [coverLetterOpen, setCoverLetterOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { data: session } = useSession();
+  const user = session?.user;
+  const displayName = user?.name?.trim() || user?.email?.split("@")[0] || "";
+  const initials =
+    displayName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "U";
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -277,18 +289,34 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                 )}
               </Button>
             )}
-            <div className="hidden md:flex items-center gap-2">
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/login">Sign in</Link>
-              </Button>
-              <Button
-                size="sm"
-                className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-indigo-500/20"
-                asChild
+            {user ? (
+              <Link
+                href="/dashboard"
+                aria-label="Go to your dashboard"
+                title={displayName}
+                className="ml-1 rounded-full"
               >
-                <Link href="/signup">Create my resume</Link>
-              </Button>
-            </div>
+                <Avatar className="w-9 h-9 ring-2 ring-border/60 hover:ring-primary/60 transition-all">
+                  <AvatarImage src={user.image ?? undefined} alt={displayName} />
+                  <AvatarFallback className="text-xs font-bold bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
+            ) : (
+              <div className="hidden md:flex items-center gap-2">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/login">Sign in</Link>
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-indigo-500/20"
+                  asChild
+                >
+                  <Link href="/signup">Create my resume</Link>
+                </Button>
+              </div>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -328,15 +356,28 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                 </Link>
               ))}
               <div className="pt-2 flex flex-col gap-2">
-                <Button variant="outline" asChild className="w-full">
-                  <Link href="/login" onClick={() => setMobileOpen(false)}>Sign in</Link>
-                </Button>
-                <Button
-                  className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0"
-                  asChild
-                >
-                  <Link href="/signup" onClick={() => setMobileOpen(false)}>Create my resume</Link>
-                </Button>
+                {user ? (
+                  <Button
+                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0"
+                    asChild
+                  >
+                    <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
+                      Go to Dashboard
+                    </Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="outline" asChild className="w-full">
+                      <Link href="/login" onClick={() => setMobileOpen(false)}>Sign in</Link>
+                    </Button>
+                    <Button
+                      className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0"
+                      asChild
+                    >
+                      <Link href="/signup" onClick={() => setMobileOpen(false)}>Create my resume</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
